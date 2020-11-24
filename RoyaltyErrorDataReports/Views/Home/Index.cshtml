@@ -1,0 +1,41 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<div>
+    <form action="/home/index" method="post">
+        <div class="form-group">
+            <label>Company</label>
+            <select class="form-control" name="CompanyCode" id="CompanyCode"></select>
+            <input type="submit"  class="btn btn-success" value="Get Report" />
+        </div>
+    </form>
+
+</div>
+<script>
+    $(document).ready(function () {
+        BindCompany();
+    });
+
+    function BindCompany() {
+        var ddl = $("#CompanyCode");
+        $.ajax({
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            url: "/common/GetCompany",
+            data: '',
+            dataType: "json",
+            success: function (data) {
+                var list = JSON.parse(data);
+                ddl.empty();
+                $.each(list, function () {
+                    ddl.append($("<option></option>").val(this['Company_Code']).html(this['Name_1']));
+                });
+                BindDivision();
+            },
+            error: function (xhr, err) {
+
+            }
+        });
+    };
+</script>
