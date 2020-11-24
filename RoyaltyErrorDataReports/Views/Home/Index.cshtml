@@ -10,7 +10,7 @@
             <input type="submit"  class="btn btn-success" value="Get Report" />
         </div>
     </form>
-
+    @Html.Raw(ViewBag.subDetail)
 </div>
 <script>
     $(document).ready(function () {
@@ -31,7 +31,7 @@
                 $.each(list, function () {
                     ddl.append($("<option></option>").val(this['Company_Code']).html(this['Name_1']));
                 });
-                BindDivision();
+                //BindDivision();
             },
             error: function (xhr, err) {
 

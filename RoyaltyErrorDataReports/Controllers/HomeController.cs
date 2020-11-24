@@ -20,7 +20,7 @@ namespace RoyaltyErrorDataReports.Controllers
         public ActionResult Index(string CompanyCode)
         {
             List<SqlParameter> lstParam3 = new List<SqlParameter>();
-            lstParam3.Add(new SqlParameter("Company_Code", CompanyCode));
+            lstParam3.Add(new SqlParameter("Company", CompanyCode));
 
             DataTable dtSubDetail = GNF.ExceuteStoredProcedure("SP_Validate_Roy_FireOffStart", lstParam3);
             ViewBag.subDetail = ConvertDataTableToHTML(dtSubDetail);
