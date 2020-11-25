@@ -69,19 +69,54 @@ namespace RoyaltyErrorDataReports.Controllers
             return RedirectToAction("Index");
         }
 
-        public ActionResult About()
+        public ActionResult MailOut()
         {
-            ViewBag.Message = "Your application description page.";
 
             return View();
         }
 
-        public ActionResult Contact()
+        [HttpPost]
+        public ActionResult MailOut(string Company)
         {
-            ViewBag.Message = "Your contact page.";
+             
+
+            DataTable dtCompanies = GNF.ExceuteStoredProcedure("SP_RoyaltyErrorDataReports_Companies");
+            if (dtCompanies != null && dtCompanies.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dtCompanies.Rows)
+                {
+                    List<SqlParameter> lstParam3 = new List<SqlParameter>();
+                    lstParam3.Add(new SqlParameter("Company", dr["Company_Code"]));
+
+                    DataTable dtSubDetail = GNF.ExceuteStoredProcedure("SP_Validate_Roy_FireOffStart", lstParam3);
+                    if (dtSubDetail != null && dtSubDetail.Rows.Count > 0)
+                    {
+                        lstParam3 = new List<SqlParameter>();
+                        lstParam3.Add(new SqlParameter("Company", dr["Company_Code"]));
+                        DataTable dtSubDetail2 = GNF.ExceuteStoredProcedure("SP_Validate_Roy_Result_Error", lstParam3);
+
+                        DataTable dtSubDetail3 = GNF.ExceuteStoredProcedure("[SP_Validate_Roy_Data]");
+                        //ViewBag.subDetail = dtSubDetail;// ConvertDataTableToHTML(dtSubDetail);
+                        using (XLWorkbook wb = new XLWorkbook())
+                        {
+                            dtSubDetail3.TableName = "Data1";
+                            wb.Worksheets.Add(dtSubDetail3);
+                            //wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                            //wb.Style.Font.Bold = true;
+                            //wb.find.Style.Fill.BackgroundColor=XLColor.LightGreen;
+                           
+                                wb.SaveAs(stream);
+                                
+                             
+                        }
+                    }
+                }
+            }
 
             return View();
         }
+
+         
         public static string ConvertDataTableToHTML(DataTable dt)
         {
             string html = "<table class='' border='1'>";
