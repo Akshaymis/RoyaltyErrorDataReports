@@ -1,8 +1,10 @@
-﻿using RoyaltyErrorDataReports.Models;
+﻿using ClosedXML.Excel;
+using RoyaltyErrorDataReports.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -13,19 +15,58 @@ namespace RoyaltyErrorDataReports.Controllers
     {
         public ActionResult Index()
         {
-
             return View();
         }
+
         [HttpPost]
         public ActionResult Index(string CompanyCode)
         {
+            ViewBag.Company = CompanyCode;
+
             List<SqlParameter> lstParam3 = new List<SqlParameter>();
             lstParam3.Add(new SqlParameter("Company", CompanyCode));
 
             DataTable dtSubDetail = GNF.ExceuteStoredProcedure("SP_Validate_Roy_FireOffStart", lstParam3);
-            ViewBag.subDetail = ConvertDataTableToHTML(dtSubDetail);
+            lstParam3 = new List<SqlParameter>();
+            lstParam3.Add(new SqlParameter("Company", CompanyCode));
+            DataTable dtSubDetail2 = GNF.ExceuteStoredProcedure("SP_Validate_Roy_Result_Error", lstParam3);
+            DataTable dtSubDetail3 = GNF.ExceuteStoredProcedure("[SP_Validate_Roy_Data]");
+            //ViewBag.subDetail = dtSubDetail;// ConvertDataTableToHTML(dtSubDetail);
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                dtSubDetail3.TableName = "Data1";
+                wb.Worksheets.Add(dtSubDetail3);
+                //wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                //wb.Style.Font.Bold = true;
+                //wb.find.Style.Fill.BackgroundColor=XLColor.LightGreen;
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    wb.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Report.xlsx");
+                }
+            }
+            return View(dtSubDetail3);
+        }
 
-            return View();
+        [HttpPost]
+        public ActionResult Export(string CompanyCode)
+        {
+            List<SqlParameter> lstParam3 = new List<SqlParameter>();
+            lstParam3.Add(new SqlParameter("Company", CompanyCode));
+
+            DataTable dtSubDetail = GNF.ExceuteStoredProcedure("SP_Validate_Roy_Data");
+            //ViewBag.subDetail = dtSubDetail;// ConvertDataTableToHTML(dtSubDetail);
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                dtSubDetail.TableName = "Data1";
+                wb.Worksheets.Add(dtSubDetail);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    wb.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Grid.xlsx");
+                }
+            }
+            return RedirectToAction("Index");
         }
 
         public ActionResult About()

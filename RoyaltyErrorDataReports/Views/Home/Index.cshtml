@@ -1,16 +1,95 @@
-﻿@{
+﻿@model  System.Data.DataTable
+@{
     ViewBag.Title = "Home Page";
+
+    var result = new List<dynamic>();
+    if (Model != null && Model.Rows.Count > 0)
+    {
+        //    foreach (System.Data.DataRow row in Model.Rows)
+        //    {
+        //        var obj = (IDictionary<string, object>)new System.Dynamic.ExpandoObject();
+        //        foreach (System.Data.DataColumn col in Model.Columns)
+        //        {
+        //            obj.Add(col.ColumnName, row[col.ColumnName]);
+        //        }
+        //        result.Add(obj);
+        //    }
+
+        foreach (System.Data.DataRow row in Model.Rows)
+        {
+            var obj = (IDictionary<string, object>)new System.Dynamic.ExpandoObject();
+            foreach (System.Data.DataColumn col in Model.Columns)
+            {
+                obj.Add(col.ColumnName, row[col.ColumnName]);
+            }
+            result.Add(obj);
+        }
+
+    }
 }
 <script src="~/Scripts/jquery-1.10.2.js"></script>
 <div>
     <form action="/home/index" method="post">
-        <div class="form-group">
-            <label>Company</label>
-            <select class="form-control" name="CompanyCode" id="CompanyCode"></select>
-            <input type="submit"  class="btn btn-success" value="Get Report" />
+        <div class="form-group mt-3" style="margin-top:20px;">
+            <table>
+                <tr>
+                    <td><label>Company Name: </label></td>
+                </tr>
+                <tr>
+                    <td><select class="form-control" name="CompanyCode" id="CompanyCode"></select></td>
+                    <td><input type="submit" class="btn btn-success" value="Export" /></td>
+                    @*<td><input type="submit" class="btn btn-primary" value="Export" /></td>*@
+                </tr>
+            </table>
+
+
+
         </div>
     </form>
-    @Html.Raw(ViewBag.subDetail)
+    @*@if (Model != null && Model.Rows.Count > 0)
+        {
+            <form action="/home/export" method="post">
+                <div class="form-group">
+                    <input style="display:none" type="hidden" value="@ViewBag.Company" id="CompanyCode2" name="CompanyCode" /> <input type="submit" class="btn btn-primary" value="Export" />
+                </div>
+            </form>
+        }*@
+    @*@Html.Raw(ViewBag.subDetail)*@
+    @{
+
+
+        @*var grid = new WebGrid(result, canPage: true);
+            <div class="container" style="overflow:scroll; height:400px">
+                @grid.GetHtml(tableStyle: "table-condensed")
+            </div>*@
+        @*var result = new List<dynamic>();
+            foreach (System.Data.DataRow row in Model.Rows)
+            {
+                var obj = (IDictionary<string, object>)new System.Dynamic.ExpandoObject();
+                foreach (System.Data.DataColumn col in Model.Columns)
+                {
+                    obj.Add(col.ColumnName, row[col.ColumnName]);
+                }
+                result.Add(obj);
+            }
+            WebGrid grid = new WebGrid(result, canPage: true, rowsPerPage: 15);
+
+            List<WebGridColumn> columns = new List<WebGridColumn>();
+            WebGridColumn col = grid.Column(columnName: "Col3", header: "Compensation", format: (item) =>
+            {
+               // this.Columns.CompensationColumn c = item.Compensation; return Html.DisplayFor(model => c);
+            });
+            columns.Add(col);
+
+            @grid.GetHtml(htmlAttributes: new { id = "empTable" },
+                tableStyle: "table table-striped table-hover",
+                headerStyle: "header",
+                alternatingRowStyle: "alt",
+                selectedRowStyle: "select",
+                columns: columns)*@
+
+    }
+
 </div>
 <script>
     $(document).ready(function () {
@@ -32,6 +111,7 @@
                     ddl.append($("<option></option>").val(this['Company_Code']).html(this['Name_1']));
                 });
                 //BindDivision();
+                $('#CompanyCode').val($('#CompanyCode2').val());
             },
             error: function (xhr, err) {
 
@@ -39,3 +119,12 @@
         });
     };
 </script>
+<style>
+    table.table-condensed {
+        font-size: 11px;
+    }
+
+        table.table-condensed tr td, table.table-condensed tr th {
+            border: 1px solid #ddd;
+        }
+</style>
