@@ -4,7 +4,26 @@
 }
 
 <h2>Mail Out</h2>
-<form action="/home/mailout" method="post">
-    <input type="submit" value="Send Emails" class="'btn btn-primary'" />
-</form>
+<div class="ddd2">
+    <input type="password" id="pwd" placeholder="Password" />
+    <input type="button" onclick="openPop()" value="Submit Password" />
+</div>
+<div class="ddd" style="display:none">
+    <form action="/home/mailout" method="post">
+        <input type="submit" value="Send Emails" class="'btn btn-primary'" />
+    </form>
 
+</div>
+<script>
+    function openPop() {
+        if ($('#pwd').val() == 'nasdaq') {
+            $('.ddd').show();
+            $('.ddd2').hide();
+           
+        } else {
+            $('.ddd').hide();
+            $('.ddd2').show();
+            alert('Invalid password')
+        }
+    }
+</script>

@@ -28,7 +28,11 @@
     }
 }
 <script src="~/Scripts/jquery-1.10.2.js"></script>
-<div>
+<div class="ddd2" style="margin-top:20px">
+    @*<input type="password" id="pwd" placeholder="Password" />
+    <input type="button" onclick="openPop()" value="Submit Password" />
+</div>
+<div class="ddd" style="display:none">*@
     <form action="/home/index" method="post">
         <div class="form-group mt-3" style="margin-top:20px;">
             <table>
@@ -91,6 +95,19 @@
     }
 
 </div>
+<script>
+    function openPop() {
+        if ($('#pwd').val() == 'nasdaq') {
+            $('.ddd').show();
+            $('.ddd2').hide();
+
+        } else {
+            $('.ddd').hide();
+            $('.ddd2').show();
+            alert('Invalid password')
+        }
+    }
+</script>
 <script>
     $(document).ready(function () {
         BindCompany();

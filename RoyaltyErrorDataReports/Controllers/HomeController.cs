@@ -6,6 +6,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
 using System.Web;
 using System.Web.Mvc;
 
@@ -78,8 +79,13 @@ namespace RoyaltyErrorDataReports.Controllers
         [HttpPost]
         public ActionResult MailOut(string Company)
         {
-             
 
+            string FilePath = "~/temp/";
+            DirectoryInfo di = new DirectoryInfo(Server.MapPath(FilePath));
+            if (!di.Exists)
+            {
+                di.Create();
+            }
             DataTable dtCompanies = GNF.ExceuteStoredProcedure("SP_RoyaltyErrorDataReports_Companies");
             if (dtCompanies != null && dtCompanies.Rows.Count > 0)
             {
@@ -104,10 +110,26 @@ namespace RoyaltyErrorDataReports.Controllers
                             //wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                             //wb.Style.Font.Bold = true;
                             //wb.find.Style.Fill.BackgroundColor=XLColor.LightGreen;
-                           
-                                wb.SaveAs(stream);
-                                
-                             
+                            string FileName = "File-" + DateTime.Now.ToString("MMddyyyyHHmmsstt") + ".xlsx";
+                            string path = FilePath + FileName;
+                            wb.SaveAs(path);
+
+                            lstParam3 = new List<SqlParameter>();
+                            lstParam3.Add(new SqlParameter("CompanyCode", dr["Company_Code"]));
+
+                            DataTable dtSubDetail4 = GNF.ExceuteStoredProcedure("SP_RoyaltyErrorDataReports_Email", lstParam3);
+                            if (dtSubDetail4 != null && dtSubDetail4.Rows.Count > 0)
+                            {
+                                foreach (DataRow dr4 in dtSubDetail4.Rows)
+                                {
+                                    List<Attachment> lstAttachment = new List<Attachment>();
+                                    lstAttachment.Add(new Attachment(path));
+                                    string Subject = "Please be advised that the attached file contains errors on item setup. This is for Company '"+ dr["Company_Code"] .ToString()+ "'";
+                                    string Body = "Please fix these errors within (3) business days upon receipt of this email. Please reach out to Eli Maiman with any questions or concerns";
+                                    NotificationHelper.SendMail(dr4["Email"].ToString(), Subject, Body, true, lstAttachment);
+                                }
+                            }
+
                         }
                     }
                 }
@@ -116,7 +138,7 @@ namespace RoyaltyErrorDataReports.Controllers
             return View();
         }
 
-         
+
         public static string ConvertDataTableToHTML(DataTable dt)
         {
             string html = "<table class='' border='1'>";
