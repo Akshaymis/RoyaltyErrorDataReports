@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using Newtonsoft.Json;
 using RoyaltyErrorDataReports.Models;
 using System;
 using System.Collections.Generic;
@@ -79,60 +80,79 @@ namespace RoyaltyErrorDataReports.Controllers
         [HttpPost]
         public ActionResult MailOut(string Company)
         {
+            try
+            {
+                ViewBag.Message = "";
 
-            string FilePath = "~/temp/";
-            DirectoryInfo di = new DirectoryInfo(Server.MapPath(FilePath));
-            if (!di.Exists)
-            {
-                di.Create();
-            }
-            DataTable dtCompanies = GNF.ExceuteStoredProcedure("SP_RoyaltyErrorDataReports_Companies");
-            if (dtCompanies != null && dtCompanies.Rows.Count > 0)
-            {
-                foreach (DataRow dr in dtCompanies.Rows)
+                string FilePath = "E:\\IIS_Published_Websites\\RoyaltyErrorDataReports_Publish\\temp\\";
+                DirectoryInfo di = new DirectoryInfo(FilePath);
+                if (!di.Exists)
                 {
-                    List<SqlParameter> lstParam3 = new List<SqlParameter>();
-                    lstParam3.Add(new SqlParameter("Company", dr["Company_Code"]));
-
-                    DataTable dtSubDetail = GNF.ExceuteStoredProcedure("SP_Validate_Roy_FireOffStart", lstParam3);
-                    if (dtSubDetail != null && dtSubDetail.Rows.Count > 0)
+                    di.Create();
+                }
+                DataTable dtCompanies = GNF.ExceuteStoredProcedure("SP_RoyaltyErrorDataReports_Companies");
+                if (dtCompanies != null && dtCompanies.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dtCompanies.Rows)
                     {
-                        lstParam3 = new List<SqlParameter>();
+                        List<SqlParameter> lstParam3 = new List<SqlParameter>();
                         lstParam3.Add(new SqlParameter("Company", dr["Company_Code"]));
-                        DataTable dtSubDetail2 = GNF.ExceuteStoredProcedure("SP_Validate_Roy_Result_Error", lstParam3);
 
-                        DataTable dtSubDetail3 = GNF.ExceuteStoredProcedure("[SP_Validate_Roy_Data]");
-                        //ViewBag.subDetail = dtSubDetail;// ConvertDataTableToHTML(dtSubDetail);
-                        using (XLWorkbook wb = new XLWorkbook())
+                        DataTable dtSubDetail = GNF.ExceuteStoredProcedure("SP_Validate_Roy_FireOffStart", lstParam3);
+                        if (dtSubDetail != null && dtSubDetail.Rows.Count > 0)
                         {
-                            dtSubDetail3.TableName = "Data1";
-                            wb.Worksheets.Add(dtSubDetail3);
-                            //wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                            //wb.Style.Font.Bold = true;
-                            //wb.find.Style.Fill.BackgroundColor=XLColor.LightGreen;
-                            string FileName = "File-" + DateTime.Now.ToString("MMddyyyyHHmmsstt") + ".xlsx";
-                            string path = FilePath + FileName;
-                            wb.SaveAs(path);
-
                             lstParam3 = new List<SqlParameter>();
-                            lstParam3.Add(new SqlParameter("CompanyCode", dr["Company_Code"]));
+                            lstParam3.Add(new SqlParameter("Company", dr["Company_Code"]));
+                            DataTable dtSubDetail2 = GNF.ExceuteStoredProcedure("SP_Validate_Roy_Result_Error", lstParam3);
 
-                            DataTable dtSubDetail4 = GNF.ExceuteStoredProcedure("SP_RoyaltyErrorDataReports_Email", lstParam3);
-                            if (dtSubDetail4 != null && dtSubDetail4.Rows.Count > 0)
+                            DataTable dtSubDetail3 = GNF.ExceuteStoredProcedure("[SP_Validate_Roy_Data]");
+                            //ViewBag.subDetail = dtSubDetail;// ConvertDataTableToHTML(dtSubDetail);
+                            using (XLWorkbook wb = new XLWorkbook())
                             {
-                                foreach (DataRow dr4 in dtSubDetail4.Rows)
-                                {
-                                    List<Attachment> lstAttachment = new List<Attachment>();
-                                    lstAttachment.Add(new Attachment(path));
-                                    string Subject = "Please be advised that the attached file contains errors on item setup. This is for Company '"+ dr["Company_Code"] .ToString()+ "'";
-                                    string Body = "Please fix these errors within (3) business days upon receipt of this email. Please reach out to Eli Maiman with any questions or concerns";
-                                    NotificationHelper.SendMail(dr4["Email"].ToString(), Subject, Body, true, lstAttachment);
-                                }
-                            }
+                                dtSubDetail3.TableName = "Data1";
+                                wb.Worksheets.Add(dtSubDetail3);
+                                //wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                                //wb.Style.Font.Bold = true;
+                                //wb.find.Style.Fill.BackgroundColor=XLColor.LightGreen;
+                                string FileName = "File-" + DateTime.Now.ToString("MMddyyyyHHmmsstt") + ".xlsx";
+                                string path = FilePath + FileName;
+                                wb.SaveAs(path);
 
+                                lstParam3 = new List<SqlParameter>();
+                                lstParam3.Add(new SqlParameter("CompanyCode", dr["Company_Code"]));
+
+                                DataTable dtSubDetail4 = GNF.ExceuteStoredProcedure("SP_RoyaltyErrorDataReports_Email", lstParam3);
+                                if (dtSubDetail4 != null && dtSubDetail4.Rows.Count > 0)
+                                {
+                                    foreach (DataRow dr4 in dtSubDetail4.Rows)
+                                    {
+                                        List<Attachment> lstAttachment = new List<Attachment>();
+                                        lstAttachment.Add(new Attachment(path));
+                                        string Subject = "Please be advised that the attached file contains errors on item setup. This is for Company '" + dr["Company_Code"].ToString() + "'";
+                                        string Body = "Please fix these errors within (3) business days upon receipt of this email. Please reach out to Eli Maiman with any questions or concerns";
+                                        NotificationHelper.SendMail(dr4["Email"].ToString(), Subject, Body, true, lstAttachment);
+                                    }
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            ViewBag.Message = "No data to sent in subDetail";
                         }
                     }
+                    ViewBag.Message = "MailOut completed successfully";
                 }
+                else
+                {
+                    ViewBag.Message = "No data to sent";
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = ex.Message;
+                NotificationHelper.SendMail("amishra@bentex.com", "Mailout >> Exception occured", ex.Message + "<br>" + ex.StackTrace, true, null);
+                NotificationHelper.SendMail("emaiman@bentex.com", "Mailout >> Exception occured", ex.Message + "<br>" + ex.StackTrace, true, null);
             }
 
             return View();
