@@ -169,8 +169,8 @@ namespace RoyaltyErrorDataReports.Controllers
             {
                 ViewBag.Message = "";
 
-                string FilePath = "E:\\IIS_Published_Websites\\RoyaltyErrorDataReports_Publish\\temp\\";
-                DirectoryInfo di = new DirectoryInfo(FilePath);
+                string FilePath = "temp";// "E:\\IIS_Published_Websites\\RoyaltyErrorDataReports_Publish\\temp\\";
+                DirectoryInfo di = new DirectoryInfo(HttpContext.Server.MapPath(FilePath));
                 if (!di.Exists)
                 {
                     di.Create();
@@ -230,6 +230,7 @@ namespace RoyaltyErrorDataReports.Controllers
                 }
                 else
                 {
+                    NotificationHelper.SendMail("amishra@bentex.com", "Mailout >> No data to sent", "", true, null);
                     ViewBag.Message = "No data to sent";
                 }
             }
