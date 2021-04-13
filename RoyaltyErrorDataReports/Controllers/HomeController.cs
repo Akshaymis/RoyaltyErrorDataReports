@@ -126,8 +126,12 @@ namespace RoyaltyErrorDataReports.Controllers
                                 {
                                     foreach (DataRow dr4 in dtSubDetail4.Rows)
                                     {
+                                        
                                         List<Attachment> lstAttachment = new List<Attachment>();
-                                        lstAttachment.Add(new Attachment(path));
+                                        FileInfo fi = new FileInfo(path);
+                                        string newFileName = (FilePath + (fi.Name.Replace(".xlsx", Guid.NewGuid().ToString() + ".xlsx")));
+                                        fi.CopyTo(newFileName);
+                                        lstAttachment.Add(new Attachment(newFileName));
                                         string Subject = "Please be advised that the attached file contains errors on item setup. This is for Company '" + dr["Company_Code"].ToString() + "'";
                                         string Body = "Please fix these errors within (3) business days upon receipt of this email. Please reach out to Eli Maiman with any questions or concerns";
                                         NotificationHelper.SendMail(dr4["Email"].ToString(), Subject, Body, true, lstAttachment);
@@ -161,6 +165,7 @@ namespace RoyaltyErrorDataReports.Controllers
         
         public ActionResult MailAutomation(string Code)
         {
+            bool MailAutomationWorked = false;
             if (Code != "11")
             {
                 return View();
@@ -212,7 +217,10 @@ namespace RoyaltyErrorDataReports.Controllers
                                     foreach (DataRow dr4 in dtSubDetail4.Rows)
                                     {
                                         List<Attachment> lstAttachment = new List<Attachment>();
-                                        lstAttachment.Add(new Attachment(path));
+                                        FileInfo fi = new FileInfo(path);
+                                        string newFileName = (FilePath + (fi.Name.Replace(".xlsx", Guid.NewGuid().ToString() + ".xlsx")));
+                                        fi.CopyTo(newFileName);
+                                        lstAttachment.Add(new Attachment(newFileName));
                                         string Subject = "Please be advised that the attached file contains errors on item setup. This is for Company '" + dr["Company_Code"].ToString() + "'";
                                         string Body = "Please fix these errors within (3) business days upon receipt of this email. Please reach out to Eli Maiman with any questions or concerns";
                                         NotificationHelper.SendMail(dr4["Email"].ToString(), Subject, Body, true, lstAttachment);
@@ -223,24 +231,33 @@ namespace RoyaltyErrorDataReports.Controllers
                         }
                         else
                         {
+                            MailAutomationWorked = true;
                             ViewBag.Message = "No data to sent in subDetail";
                         }
                     }
+                    MailAutomationWorked = true;
                     ViewBag.Message = "MailOut completed successfully";
                 }
                 else
                 {
+                    MailAutomationWorked = true;
                     NotificationHelper.SendMail("amishra@bentex.com", "Mailout >> No data to sent", "", true, null);
                     ViewBag.Message = "No data to sent";
                 }
             }
             catch (Exception ex)
             {
+                MailAutomationWorked = false;
                 ViewBag.Message = ex.Message;
                 NotificationHelper.SendMail("amishra@bentex.com", "Mailout >> Exception occured", ex.Message + "<br>" + ex.StackTrace, true, null);
                 NotificationHelper.SendMail("emaiman@bentex.com", "Mailout >> Exception occured", ex.Message + "<br>" + ex.StackTrace, true, null);
             }
-
+            if (MailAutomationWorked)
+            {
+                DBHelperCronJObDB objCronDb = new DBHelperCronJObDB();
+                string Sql = "insert into Cron_Job_Processed (job_number,job_name) values (\'1004\',\'RoyaltyErrorReports')";
+                objCronDb.ExecuteNonQuery(Sql);
+            }
             return View();
         }
 

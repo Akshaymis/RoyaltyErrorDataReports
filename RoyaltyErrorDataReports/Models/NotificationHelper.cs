@@ -38,7 +38,7 @@ namespace RoyaltyErrorDataReports.Models
                 message.Body = mailContent;
 
                
-                message.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure | DeliveryNotificationOptions.OnSuccess;
+                //message.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure | DeliveryNotificationOptions.OnSuccess;
                 foreach (Attachment a in lstAttachment)
                 {
                     message.Attachments.Add(a);
@@ -62,6 +62,8 @@ namespace RoyaltyErrorDataReports.Models
             }
             catch (Exception ex)
             {
+                NotificationHelper.SendMail("amishra@bentex.com", "Mailout >> Exception occured", ex.Message + "<br>" + ex.StackTrace, true, null);
+                NotificationHelper.SendMail("emaiman@bentex.com", "Mailout >> Exception occured", ex.Message + "<br>" + ex.StackTrace, true, null);
                 message.Dispose();
                 ////Try to send using Backup SMTP In the case if SMTP failes
                 //if (!SendUsingBackupSMTP(message))
