@@ -99,45 +99,49 @@ namespace RoyaltyErrorDataReports.Controllers
                         lstParam3.Add(new SqlParameter("Company", dr["Company_Code"]));
 
                         DataTable dtSubDetail = GNF.ExceuteStoredProcedure("SP_Validate_Roy_FireOffStart", lstParam3);
-                        if (dtSubDetail != null && dtSubDetail.Rows.Count > 0)
+                        lstParam3 = new List<SqlParameter>();
+                        lstParam3.Add(new SqlParameter("Company", dr["Company_Code"]));
+                        DataTable dtSubDetail2 = GNF.ExceuteStoredProcedure("SP_Validate_Roy_Result_Error", lstParam3);
+                        if (dtSubDetail2 != null && dtSubDetail2.Rows.Count > 0)
                         {
-                            lstParam3 = new List<SqlParameter>();
-                            lstParam3.Add(new SqlParameter("Company", dr["Company_Code"]));
-                            DataTable dtSubDetail2 = GNF.ExceuteStoredProcedure("SP_Validate_Roy_Result_Error", lstParam3);
+
 
                             DataTable dtSubDetail3 = GNF.ExceuteStoredProcedure("[SP_Validate_Roy_Data]");
-                            //ViewBag.subDetail = dtSubDetail;// ConvertDataTableToHTML(dtSubDetail);
-                            using (XLWorkbook wb = new XLWorkbook())
+                            if (dtSubDetail3 != null && dtSubDetail3.Rows.Count > 0)
                             {
-                                dtSubDetail3.TableName = "Data1";
-                                wb.Worksheets.Add(dtSubDetail3);
-                                //wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                                //wb.Style.Font.Bold = true;
-                                //wb.find.Style.Fill.BackgroundColor=XLColor.LightGreen;
-                                string FileName = "File-" + DateTime.Now.ToString("MMddyyyyHHmmsstt") + ".xlsx";
-                                string path = FilePath + FileName;
-                                wb.SaveAs(path);
-
-                                lstParam3 = new List<SqlParameter>();
-                                lstParam3.Add(new SqlParameter("CompanyCode", dr["Company_Code"]));
-
-                                DataTable dtSubDetail4 = GNF.ExceuteStoredProcedure("SP_RoyaltyErrorDataReports_Email", lstParam3);
-                                if (dtSubDetail4 != null && dtSubDetail4.Rows.Count > 0)
+                                //ViewBag.subDetail = dtSubDetail;// ConvertDataTableToHTML(dtSubDetail);
+                                using (XLWorkbook wb = new XLWorkbook())
                                 {
-                                    foreach (DataRow dr4 in dtSubDetail4.Rows)
-                                    {
-                                        
-                                        List<Attachment> lstAttachment = new List<Attachment>();
-                                        FileInfo fi = new FileInfo(path);
-                                        string newFileName = (FilePath + (fi.Name.Replace(".xlsx", Guid.NewGuid().ToString() + ".xlsx")));
-                                        fi.CopyTo(newFileName);
-                                        lstAttachment.Add(new Attachment(newFileName));
-                                        string Subject = "Please be advised that the attached file contains errors on item setup. This is for Company '" + dr["Company_Code"].ToString() + "'";
-                                        string Body = "Please fix these errors within (3) business days upon receipt of this email. Please reach out to Eli Maiman with any questions or concerns";
-                                        NotificationHelper.SendMail(dr4["Email"].ToString(), Subject, Body, true, lstAttachment);
-                                    }
-                                }
+                                    dtSubDetail3.TableName = "Data1";
+                                    wb.Worksheets.Add(dtSubDetail3);
+                                    //wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                                    //wb.Style.Font.Bold = true;
+                                    //wb.find.Style.Fill.BackgroundColor=XLColor.LightGreen;
+                                    string FileName = "File-" + DateTime.Now.ToString("MMddyyyyHHmmsstt") + ".xlsx";
+                                    string path = FilePath + FileName;
+                                    wb.SaveAs(path);
 
+                                    lstParam3 = new List<SqlParameter>();
+                                    lstParam3.Add(new SqlParameter("CompanyCode", dr["Company_Code"]));
+
+                                    DataTable dtSubDetail4 = GNF.ExceuteStoredProcedure("SP_RoyaltyErrorDataReports_Email", lstParam3);
+                                    if (dtSubDetail4 != null && dtSubDetail4.Rows.Count > 0)
+                                    {
+                                        foreach (DataRow dr4 in dtSubDetail4.Rows)
+                                        {
+
+                                            List<Attachment> lstAttachment = new List<Attachment>();
+                                            FileInfo fi = new FileInfo(path);
+                                            string newFileName = (FilePath + (fi.Name.Replace(".xlsx", Guid.NewGuid().ToString() + ".xlsx")));
+                                            fi.CopyTo(newFileName);
+                                            lstAttachment.Add(new Attachment(newFileName));
+                                            string Subject = "Please be advised that the attached file contains errors on item setup. This is for Company '" + dr["Company_Code"].ToString() + "'";
+                                            string Body = "Please fix these errors within (3) business days upon receipt of this email. Please reach out to Eli Maiman with any questions or concerns";
+                                            NotificationHelper.SendMail(dr4["Email"].ToString(), Subject, Body, true, lstAttachment);
+                                        }
+                                    }
+
+                                }
                             }
                         }
                         else
@@ -162,7 +166,7 @@ namespace RoyaltyErrorDataReports.Controllers
             return View();
         }
 
-        
+
         public ActionResult MailAutomation(string Code)
         {
             bool MailAutomationWorked = false;
@@ -189,44 +193,48 @@ namespace RoyaltyErrorDataReports.Controllers
                         lstParam3.Add(new SqlParameter("Company", dr["Company_Code"]));
 
                         DataTable dtSubDetail = GNF.ExceuteStoredProcedure("SP_Validate_Roy_FireOffStart", lstParam3);
-                        if (dtSubDetail != null && dtSubDetail.Rows.Count > 0)
+                        lstParam3 = new List<SqlParameter>();
+                        lstParam3.Add(new SqlParameter("Company", dr["Company_Code"]));
+                        DataTable dtSubDetail2 = GNF.ExceuteStoredProcedure("SP_Validate_Roy_Result_Error", lstParam3);
+                        if (dtSubDetail2 != null && dtSubDetail2.Rows.Count > 0)
                         {
-                            lstParam3 = new List<SqlParameter>();
-                            lstParam3.Add(new SqlParameter("Company", dr["Company_Code"]));
-                            DataTable dtSubDetail2 = GNF.ExceuteStoredProcedure("SP_Validate_Roy_Result_Error", lstParam3);
+
 
                             DataTable dtSubDetail3 = GNF.ExceuteStoredProcedure("[SP_Validate_Roy_Data]");
-                            //ViewBag.subDetail = dtSubDetail;// ConvertDataTableToHTML(dtSubDetail);
-                            using (XLWorkbook wb = new XLWorkbook())
+                            if (dtSubDetail3 != null && dtSubDetail3.Rows.Count > 0)
                             {
-                                dtSubDetail3.TableName = "Data1";
-                                wb.Worksheets.Add(dtSubDetail3);
-                                //wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                                //wb.Style.Font.Bold = true;
-                                //wb.find.Style.Fill.BackgroundColor=XLColor.LightGreen;
-                                string FileName = "File-" + DateTime.Now.ToString("MMddyyyyHHmmsstt") + ".xlsx";
-                                string path = FilePath + FileName;
-                                wb.SaveAs(path);
-
-                                lstParam3 = new List<SqlParameter>();
-                                lstParam3.Add(new SqlParameter("CompanyCode", dr["Company_Code"]));
-
-                                DataTable dtSubDetail4 = GNF.ExceuteStoredProcedure("SP_RoyaltyErrorDataReports_Email", lstParam3);
-                                if (dtSubDetail4 != null && dtSubDetail4.Rows.Count > 0)
+                                //ViewBag.subDetail = dtSubDetail;// ConvertDataTableToHTML(dtSubDetail);
+                                using (XLWorkbook wb = new XLWorkbook())
                                 {
-                                    foreach (DataRow dr4 in dtSubDetail4.Rows)
-                                    {
-                                        List<Attachment> lstAttachment = new List<Attachment>();
-                                        FileInfo fi = new FileInfo(path);
-                                        string newFileName = (FilePath + (fi.Name.Replace(".xlsx", Guid.NewGuid().ToString() + ".xlsx")));
-                                        fi.CopyTo(newFileName);
-                                        lstAttachment.Add(new Attachment(newFileName));
-                                        string Subject = "Please be advised that the attached file contains errors on item setup. This is for Company '" + dr["Company_Code"].ToString() + "'";
-                                        string Body = "Please fix these errors within (3) business days upon receipt of this email. Please reach out to Eli Maiman with any questions or concerns";
-                                        NotificationHelper.SendMail(dr4["Email"].ToString(), Subject, Body, true, lstAttachment);
-                                    }
-                                }
+                                    dtSubDetail3.TableName = "Data1";
+                                    wb.Worksheets.Add(dtSubDetail3);
+                                    //wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                                    //wb.Style.Font.Bold = true;
+                                    //wb.find.Style.Fill.BackgroundColor=XLColor.LightGreen;
+                                    string FileName = "File-" + DateTime.Now.ToString("MMddyyyyHHmmsstt") + ".xlsx";
+                                    string path = FilePath + FileName;
+                                    wb.SaveAs(path);
 
+                                    lstParam3 = new List<SqlParameter>();
+                                    lstParam3.Add(new SqlParameter("CompanyCode", dr["Company_Code"]));
+
+                                    DataTable dtSubDetail4 = GNF.ExceuteStoredProcedure("SP_RoyaltyErrorDataReports_Email", lstParam3);
+                                    if (dtSubDetail4 != null && dtSubDetail4.Rows.Count > 0)
+                                    {
+                                        foreach (DataRow dr4 in dtSubDetail4.Rows)
+                                        {
+                                            List<Attachment> lstAttachment = new List<Attachment>();
+                                            FileInfo fi = new FileInfo(path);
+                                            string newFileName = (FilePath + (fi.Name.Replace(".xlsx", Guid.NewGuid().ToString() + ".xlsx")));
+                                            fi.CopyTo(newFileName);
+                                            lstAttachment.Add(new Attachment(newFileName));
+                                            string Subject = "Please be advised that the attached file contains errors on item setup. This is for Company '" + dr["Company_Code"].ToString() + "'";
+                                            string Body = "Please fix these errors within (3) business days upon receipt of this email. Please reach out to Eli Maiman with any questions or concerns";
+                                            NotificationHelper.SendMail(dr4["Email"].ToString(), Subject, Body, true, lstAttachment);
+                                        }
+                                    }
+
+                                }
                             }
                         }
                         else
